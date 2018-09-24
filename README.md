@@ -36,3 +36,7 @@ Usage: ./amcli [-h] [-v] [-r] [-l]
 
 Without any option specified it's showing json dashboard
 ```
+
+## Minimal bash version required
+
+Tested on bash 4.3.48

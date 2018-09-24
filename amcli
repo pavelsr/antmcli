@@ -36,6 +36,21 @@ usage() {
 }
 
 
+if ! [ -x "$(command -v curl)" ]; then
+  echo 'Error: curl is not installed.' >&2
+  exit 1
+fi
+
+if ! [ -x "$(command -v jq)" ]; then
+  echo 'Error: jq is not installed.' >&2
+  exit 1
+fi
+
+if ! [ "`ping -c 1 ${MINER_IP} &> /dev/null`" ]; then
+    echo "${MINER_IP} is not available"
+    exit 1
+fi
+
 if [[ $# -eq 0 ]] ; then
     jqdashboard
     exit 0
