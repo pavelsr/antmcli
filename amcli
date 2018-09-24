@@ -12,12 +12,71 @@ convertsecs() {
  printf "%01d:%02d\n" $h $m
 }
 
-STATUS="$(curl --digest -s --user root:root http://192.168.0.105/cgi-bin/get_miner_status.cgi)";
-SYS="$(curl --digest -s --user root:root http://192.168.0.105/cgi-bin/get_system_info.cgi)"
+jqdashboard() {
+    STATUS="$(curl --digest -s --user root:root http://${MINER_IP}/cgi-bin/get_miner_status.cgi)";
+    SYS="$(curl --digest -s --user root:root http://${MINER_IP}/cgi-bin/get_system_info.cgi)"
 
-TEMP="$(echo ${STATUS} | jq '{ temp: [ .devs[] | .temp ] | join(" ") }')"
-SUMM="$(echo ${STATUS} | jq '.summary | with_entries(select([.key] | inside(["ghsav", "accepted", "rejected"])))')"
-MINERTIME="$( convertsecs $(echo ${STATUS} | jq '.summary.elapsed | tonumber') | jq --raw-input '{elapsed: '.'}')"
-SYS_IMPORTANT="$(echo ${SYS} | jq 'with_entries(select([.key] | inside(["uptime", "loadaverage", "accepted"])))')"
+    TEMP="$(echo ${STATUS} | jq '{ temp: [ .devs[] | .temp ] | join(" ") }')"
+    SUMM="$(echo ${STATUS} | jq '.summary | with_entries(select([.key] | inside(["ghsav", "accepted", "rejected"])))')"
+    MINERTIME="$( convertsecs $(echo ${STATUS} | jq '.summary.elapsed | tonumber') | jq --raw-input '{elapsed: '.'}')"
+    SYS_IMPORTANT="$(echo ${SYS} | jq 'with_entries(select([.key] | inside(["uptime", "loadaverage", "accepted"])))')"
 
-echo "${MINERTIME} ${SYS_IMPORTANT} ${TEMP} ${SUMM}" | jq -s add
+    echo "${MINERTIME} ${SYS_IMPORTANT} ${TEMP} ${SUMM}" | jq -s add
+}
+
+usage() {
+    echo "Usage: $0 [-h] [-v] [-r] [-l]"
+    echo "  -h  Help. Display this message and quit"
+    echo "  -v  Version. Print version number and quit"
+    echo "  -a  Show Antminer API authorization details"
+    echo "  -r  Reboot Antminer"
+    echo "  -l  Show Antminer linux kernel log"
+    echo "Without any option specified it's showing json dashboard"
+    exit
+}
+
+
+if [[ $# -eq 0 ]] ; then
+    jqdashboard
+    exit 0
+fi
+
+while (( $# > 0 ))
+do
+    opt="$1"
+    shift
+
+    case $opt in
+    
+    -h)
+        usage
+        exit 0
+        ;;
+    --help)
+        usage
+        exit 0
+        ;;
+    --version)
+        echo "$0 version 1.0"
+        exit 0
+        ;;
+    -a)
+        echo "${USER}:${PASS}@${MINER_IP}"
+        exit 0
+        ;;
+    -l)
+        curl --digest -s --user root:root http://${MINER_IP}/cgi-bin/get_kernel_log.cgi
+        exit 0
+        ;;       
+    -r)
+        curl --digest -s --user root:root http://${MINER_IP}/cgi-bin/reboot.cgi
+        exit 0
+        ;;            
+    *)
+        echo "Invalid option: '$opt'" >&2
+        usage
+        exit 1
+        ;;    
+   esac
+
+done

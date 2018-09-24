@@ -24,3 +24,15 @@ USER=root
 PASS=root
 ```
 
+Available options:
+
+```
+Usage: ./amcli [-h] [-v] [-r] [-l]
+  -h  Help. Display this message and quit
+  -v  Version. Print version number and quit
+  -a  Show Antminer API authorization details
+  -r  Reboot Antminer
+  -l  Show Antminer linux kernel log
+
+Without any option specified it's showing json dashboard
+```
