@@ -1,0 +1,23 @@
+#!/bin/bash
+# Cli tool to for convenient monitor important Antminer S9 stats using curl and jq
+# If it's not working check that API is enabled on miner (cat /config/bmminer.conf)
+
+MINER_IP=192.168.0.105
+USER=root
+PASS=root
+
+convertsecs() {
+ ((h=${1}/3600))
+ ((m=(${1}%3600)/60))
+ printf "%01d:%02d\n" $h $m
+}
+
+STATUS="$(curl --digest -s --user root:root http://192.168.0.105/cgi-bin/get_miner_status.cgi)";
+SYS="$(curl --digest -s --user root:root http://192.168.0.105/cgi-bin/get_system_info.cgi)"
+
+TEMP="$(echo ${STATUS} | jq '{ temp: [ .devs[] | .temp ] | join(" ") }')"
+SUMM="$(echo ${STATUS} | jq '.summary | with_entries(select([.key] | inside(["ghsav", "accepted", "rejected"])))')"
+MINERTIME="$( convertsecs $(echo ${STATUS} | jq '.summary.elapsed | tonumber') | jq --raw-input '{elapsed: '.'}')"
+SYS_IMPORTANT="$(echo ${SYS} | jq 'with_entries(select([.key] | inside(["uptime", "loadaverage", "accepted"])))')"
+
+echo "${MINERTIME} ${SYS_IMPORTANT} ${TEMP} ${SUMM}" | jq -s add
