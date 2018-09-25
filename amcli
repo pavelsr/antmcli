@@ -46,7 +46,8 @@ if ! [ -x "$(command -v jq)" ]; then
   exit 1
 fi
 
-if ! [ "`ping -c 1 ${MINER_IP} &> /dev/null`" ]; then
+# ping return non-zero exit code if host is not available
+if [ "`ping -c 1 ${MINER_IP} &> /dev/null`" ]; then
     echo "${MINER_IP} is not available"
     exit 1
 fi
