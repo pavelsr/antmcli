@@ -13,8 +13,8 @@ convertsecs() {
 }
 
 jqdashboard() {
-    STATUS="$(curl --digest -s --user root:root http://${MINER_IP}/cgi-bin/get_miner_status.cgi)";
-    SYS="$(curl --digest -s --user root:root http://${MINER_IP}/cgi-bin/get_system_info.cgi)"
+    STATUS="$(curl -H 'Cache-Control: no-cache' --digest -s --user root:root http://${MINER_IP}/cgi-bin/get_miner_status.cgi)";
+    SYS="$(curl -H 'Cache-Control: no-cache' --digest -s --user root:root http://${MINER_IP}/cgi-bin/get_system_info.cgi)"
 
     TEMP="$(echo ${STATUS} | jq '{ temp: [ .devs[] | .temp ] | join(" ") }')"
     SUMM="$(echo ${STATUS} | jq '.summary | with_entries(select([.key] | inside(["ghs5s", "ghsav", "accepted", "rejected"])))')"
@@ -81,7 +81,7 @@ do
         exit 0
         ;;
     -l)
-        curl --digest -s --user root:root http://${MINER_IP}/cgi-bin/get_kernel_log.cgi
+        curl -H 'Cache-Control: no-cache' --digest -s --user root:root http://${MINER_IP}/cgi-bin/get_kernel_log.cgi
         exit 0
         ;;       
     -r)
