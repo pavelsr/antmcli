@@ -17,7 +17,7 @@ jqdashboard() {
     SYS="$(curl --digest -s --user root:root http://${MINER_IP}/cgi-bin/get_system_info.cgi)"
 
     TEMP="$(echo ${STATUS} | jq '{ temp: [ .devs[] | .temp ] | join(" ") }')"
-    SUMM="$(echo ${STATUS} | jq '.summary | with_entries(select([.key] | inside(["ghsav", "accepted", "rejected"])))')"
+    SUMM="$(echo ${STATUS} | jq '.summary | with_entries(select([.key] | inside(["ghs5s", "ghsav", "accepted", "rejected"])))')"
     MINERTIME="$( convertsecs $(echo ${STATUS} | jq '.summary.elapsed | tonumber') | jq --raw-input '{elapsed: '.'}')"
     SYS_IMPORTANT="$(echo ${SYS} | jq 'with_entries(select([.key] | inside(["uptime", "loadaverage", "accepted"])))')"
 
